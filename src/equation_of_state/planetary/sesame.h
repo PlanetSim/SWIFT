@@ -535,7 +535,7 @@ INLINE static float SESAME_internal_energy_from_entropy(
 
   // If below the minimum s at this rho then just use the lowest table values
   if ((idx_rho > 0.f) && ((intp_s_1 < 0.f) || (intp_s_2 < 0.f) ||
-                          (u_1 > u_2) || (u_3 > u_4))) {
+                          (log_u_1 > log_u_2) || (log_u_3 > log_u_4))) {
     intp_s_1 = 0;
     intp_s_2 = 0;
   }
@@ -732,7 +732,7 @@ INLINE static float SESAME_pressure_from_internal_energy(
   //const float rho = density;
   const float log_rho = logf(density);
   //const float uu = u;
-  const float log_u = logf(energy);
+  const float log_u = logf(u);
 
   // 2D interpolation (bilinear with log(rho), log(u)) to find P(rho, u))
   // Density index
