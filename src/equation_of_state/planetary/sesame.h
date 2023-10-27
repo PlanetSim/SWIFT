@@ -1038,7 +1038,7 @@ INLINE static float SESAME_temperature_from_internal_energy(
   }
 
   int idx_rho, idx_u_1, idx_u_2;
-  float intp_rho, intp_u_1, intp_u_2;
+  float intp_u_1, intp_u_2;
   float slope, intercept;
   //const float rho = density;
   const float log_rho = logf(density);
@@ -1086,12 +1086,12 @@ INLINE static float SESAME_temperature_from_internal_energy(
   } else {
     intp_rho = 1.f;
   }*/
-  if (mat->table_log_rho[idx_rho + 1] != mat->table_log_rho[idx_rho]) {
+  /*if (mat->table_log_rho[idx_rho + 1] != mat->table_log_rho[idx_rho]) {
       intp_rho = (log_rho - mat->table_log_rho[idx_rho]) /
                  (mat->table_log_rho[idx_rho + 1] - mat->table_log_rho[idx_rho]);
     } else {
       intp_rho = 1.f;
-    }
+    }*/
   /*if (mat->table_u_rho_T[idx_rho * mat->num_T + (idx_u_1 + 1)] !=
       mat->table_u_rho_T[idx_rho * mat->num_T + idx_u_1]) {
     intp_u_1 =
@@ -1181,7 +1181,7 @@ INLINE static float SESAME_density_from_pressure_and_temperature(
   }
 
   int idx_T, idx_P_1, idx_P_2;
-  float intp_T, intp_P_1, intp_P_2;
+  float intp_P_1, intp_P_2;
   float slope, intercept;
   const float TT = T;
   //const float log_T = logf(T);
@@ -1219,12 +1219,12 @@ INLINE static float SESAME_density_from_pressure_and_temperature(
   }
 
   // Check for duplicates in SESAME tables before interpolation
-  if (mat->table_T[idx_T + 1] != mat->table_T[idx_T]) {
+  /*if (mat->table_T[idx_T + 1] != mat->table_T[idx_T]) {
     intp_T = (TT - mat->table_T[idx_T]) /
                (mat->table_T[idx_T + 1] - mat->table_T[idx_T]);
   } else {
     intp_T = 1.f;
-  }
+  }*/
   /*if (mat->table_log_T[idx_T + 1] != mat->table_log_T[idx_T]) {
 	intp_T = (log_T - mat->table_log_T[idx_T]) /
 				(mat->table_log_T[idx_T + 1] - mat->table_log_T[idx_T]);
