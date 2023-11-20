@@ -442,6 +442,9 @@ __attribute__((always_inline)) INLINE static void runner_iact_nonsym_force(
 
   /* Viscosity term */
   const float visc_du_term = 0.5f * visc_acc_term * dvdr;
+#ifdef PLANETARY_FIXED_ENTROPY
+  visc_du_term *= 0.0f
+#endif
 
   /* Assemble the energy equation term */
   const float du_dt_i = sph_du_term_i + visc_du_term;

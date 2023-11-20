@@ -160,7 +160,10 @@ __attribute__((always_inline)) INLINE static float hydro_get_physical_pressure(
 __attribute__((always_inline)) INLINE static float hydro_get_comoving_entropy(
     const struct part *restrict p, const struct xpart *restrict xp) {
 
-  return gas_entropy_from_internal_energy(p->rho, xp->u_full, p->mat_id);
+#ifdef PLANETARY_FIXED_ENTROPY
+	return p->s_fixed;
+#endif
+	return gas_entropy_from_internal_energy(p->rho, xp->u_full, p->mat_id);
 }
 
 /**
@@ -181,6 +184,9 @@ __attribute__((always_inline)) INLINE static float hydro_get_physical_entropy(
 
   /* Note: no cosmological conversion required here with our choice of
    * coordinates. */
+#ifdef PLANETARY_FIXED_ENTROPY
+	return p->s_fixed;
+#endif
   return gas_entropy_from_internal_energy(p->rho, xp->u_full, p->mat_id);
 }
 
@@ -193,6 +199,9 @@ __attribute__((always_inline)) INLINE static float hydro_get_physical_entropy(
 __attribute__((always_inline)) INLINE static float
 hydro_get_drifted_comoving_entropy(const struct part *restrict p) {
 
+#ifdef PLANETARY_FIXED_ENTROPY
+	return p->s_fixed;
+#endif
   return gas_entropy_from_internal_energy(p->rho, p->u, p->mat_id);
 }
 
@@ -209,6 +218,9 @@ hydro_get_drifted_physical_entropy(const struct part *restrict p,
 
   /* Note: no cosmological conversion required here with our choice of
    * coordinates. */
+#ifdef PLANETARY_FIXED_ENTROPY
+	return p->s_fixed;
+#endif
   return gas_entropy_from_internal_energy(p->rho, p->u, p->mat_id);
 }
 
@@ -355,6 +367,9 @@ __attribute__((always_inline)) INLINE static void hydro_set_physical_entropy(
 
   /* Note there is no conversion from physical to comoving entropy */
   const float comoving_entropy = entropy;
+#ifdef PLANETARY_FIXED_ENTROPY
+  comoving_entropy = p->s_fixed;
+#endif
   xp->u_full =
       gas_internal_energy_from_entropy(p->rho, comoving_entropy, p->mat_id);
 }
@@ -712,6 +727,12 @@ __attribute__((always_inline)) INLINE static void hydro_reset_predicted_values(
     struct part *restrict p, const struct xpart *restrict xp,
     const struct cosmology *cosmo) {
 
+#ifdef PLANETARY_FIXED_ENTROPY
+  /* velocity damping hack */
+    xp->v_full[0] /= 2.f;
+    xp->v_full[1] /= 2.f;
+    xp->v_full[2] /= 2.f;
+#endif
   /* Re-set the predicted velocities */
   p->v[0] = xp->v_full[0];
   p->v[1] = xp->v_full[1];
@@ -719,6 +740,10 @@ __attribute__((always_inline)) INLINE static void hydro_reset_predicted_values(
 
   /* Re-set the internal energy */
   p->u = xp->u_full;
+#ifdef PLANETARY_FIXED_ENTROPY
+  p->u = gas_internal_energy_from_entropy(p->rho, p->s_fixed, p->mat_id);
+  xp->u_full = p->u;
+#endif
 
   /* Compute the pressure */
   const float pressure =
@@ -865,6 +890,10 @@ __attribute__((always_inline)) INLINE static void hydro_convert_quantities(
     struct part *restrict p, struct xpart *restrict xp,
     const struct cosmology *cosmo, const struct hydro_props *hydro_props) {
 
+#ifdef PLANETARY_FIXED_ENTROPY
+	xp->u_full = gas_internal_energy_from_entropy(p->rho, p->s_fixed, p->mat_id);
+	p->u = gas_internal_energy_from_entropy(p->rho, p->s_fixed, p->mat_id);
+#endif
   /* Compute the pressure */
   const float pressure =
       gas_pressure_from_internal_energy(p->rho, p->u, p->mat_id);
